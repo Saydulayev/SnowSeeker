@@ -7,18 +7,32 @@
 
 import SwiftUI
 
+enum SortingOption: String, CaseIterable {
+    case `default` = "Default"
+    case alphabetical = "Alphabetical"
+    case country = "Country"
+}
+
 struct ContentView: View {
     
     let resorts: [Resort] = Bundle.main.decode("resorts.json")
     
     @State private var favorites = Favorites()
     @State private var searchText = ""
+    @State private var sortingOption: SortingOption = .default
     
     var filteredResorts: [Resort] {
-        if self.searchText.isEmpty {
-            resorts
-        } else {
-            resorts.filter { $0.name.localizedStandardContains(searchText) }
+        let filtered = searchText.isEmpty
+            ? resorts
+            : resorts.filter { $0.name.localizedStandardContains(searchText) }
+        
+        switch sortingOption {
+        case .default:
+            return filtered
+        case .alphabetical:
+            return filtered.sorted { $0.name < $1.name }
+        case .country:
+            return filtered.sorted { $0.country < $1.country }
         }
     }
 
@@ -32,7 +46,7 @@ struct ContentView: View {
                             .scaledToFill()
                             .frame(width: 40, height: 25)
                             .clipShape(
-                                .rect(cornerRadius: 5)
+                                RoundedRectangle(cornerRadius: 5)
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 5)
@@ -49,7 +63,7 @@ struct ContentView: View {
                         if favorites.contains(resort) {
                             Spacer()
                             Image(systemName: "heart.fill")
-                            .accessibilityLabel("This is a favorite resort")
+                                .accessibilityLabel("This is a favorite resort")
                                 .foregroundStyle(.red)
                         }
                     }
@@ -60,6 +74,19 @@ struct ContentView: View {
                 ResortView(resort: resort)
             }
             .searchable(text: $searchText, prompt: "Search")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Menu {
+                        ForEach(SortingOption.allCases, id: \.self) { option in
+                            Button(option.rawValue) {
+                                sortingOption = option
+                            }
+                        }
+                    } label: {
+                        Label("Sort", systemImage: "arrow.up.arrow.down")
+                    }
+                }
+            }
         } detail: {
             WelcomeView()
         }
@@ -70,3 +97,4 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
