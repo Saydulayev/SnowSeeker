@@ -40,35 +40,59 @@ struct ContentView: View {
         NavigationSplitView {
             List(filteredResorts) { resort in
                 NavigationLink(value: resort) {
-                    HStack {
-                        Image(resort.country)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 40, height: 25)
-                            .clipShape(
-                                RoundedRectangle(cornerRadius: 5)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 5)
-                                    .stroke(.black, lineWidth: 1)
-                            )
-
-                        VStack(alignment: .leading) {
-                            Text(resort.name)
-                                .font(.headline)
-                            Text("\(resort.runs) runs")
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        if favorites.contains(resort) {
+                    VStack(spacing: 0) {
+                        HStack(spacing: 12) {
+                            Image(resort.country)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 50, height: 32)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(.quaternary, lineWidth: 0.5)
+                                )
+                                .shadow(radius: 2)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(resort.name)
+                                    .font(.headline)
+                                    .foregroundStyle(.primary)
+                                
+                                HStack(spacing: 8) {
+                                    Label("\(resort.runs) runs", systemImage: "figure.skiing.downhill")
+                                        .foregroundStyle(.secondary)
+                                        .font(.subheadline)
+                                    
+                                    Text("•")
+                                        .foregroundStyle(.secondary)
+                                    
+                                    Label("\(resort.elevation)m", systemImage: "mountain.2")
+                                        .foregroundStyle(.secondary)
+                                        .font(.subheadline)
+                                }
+                            }
+                            
                             Spacer()
-                            Image(systemName: "heart.fill")
-                                .accessibilityLabel("This is a favorite resort")
-                                .foregroundStyle(.red)
+                            
+                            if favorites.contains(resort) {
+                                Image(systemName: "heart.fill")
+                                    //.symbolEffect(.pulse)
+                                    .foregroundStyle(.red)
+                                    .font(.title3)
+                            }
                         }
+                        .padding(.vertical, 8)
+                        
+                        Divider()
+                            .background(Color.gray.opacity(0.2))
                     }
                 }
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
             }
+            .padding(.horizontal)
+            .scrollIndicators(.hidden)
+            .listStyle(.plain)
             .navigationTitle("Resorts")
             .navigationDestination(for: Resort.self) { resort in
                 ResortView(resort: resort)
